@@ -1,37 +1,37 @@
-Jogador;valor
-João Ricardo Riedi;NA
-Léo Jardim;NA
-Lucas Arcanjo;NA
-Wéverton;NA
-Walter;NA
-Wagner;Wagner Leonardo
-Agustín Rossi;NA
-John;NA
-Gustavo;NA
-Marcos Felipe;NA
-Fábio;NA
-Marllon Borges;Marllon
-Rodrigo Fagundes;Rodrigo
-Léo Pelé;Leo
-Cleiton Schwengber;NA
-Cauly Oliveira Souza;Cauly
-Willian;Willian Oliveira
-Ronaldo;NA
-Sergio Rochet;NA
-Igor Vinícius de Souza;Igor Vinicius
-Gabriel Baralhas;Baralhas
-Agustín Marchesín;NA
-Luciano;Luciano Seg. Atacante
-Rafael Pires;NA
-Matheusinho;Matheuzinho
-Murilo Cerqueira;Murilo
-Gabriel;Gabriel Xavier
-Gabriel;NA
-Mateus Cocão;Mateus Carvalho
-Guilherme Tinga;Tinga
-Éverson;NA
-José López;Jose Manuel Lopez
-Everaldo Stum;Everaldo
-Thiago dos Santos;Thiago Santos
-Alix Vinicius;Alix
-Bruno Fabiano Alves;Bruno Alves
+Jogador;valor;clube
+João Ricardo Riedi;NA;NA
+Léo Jardim;NA;NA
+Lucas Arcanjo;NA;NA
+Wéverton;NA;NA
+Walter;NA;NA
+Wagner;Wagner Leonardo;Vitoria
+Agustín Rossi;NA;NA
+John;NA;NA
+Gustavo;NA;NA
+Marcos Felipe;NA;NA
+Fábio;NA;NA
+Marllon Borges;Marllon;Cuiaba
+Rodrigo Fagundes;Rodrigo;Criciuma
+Léo Pelé;Leo;Vasco Da Gama
+Cleiton Schwengber;NA;NA
+Cauly Oliveira Souza;Cauly;Bahia
+Willian;Willian Oliveira;Vitoria
+Ronaldo;NA;NA
+Sergio Rochet;NA;NA
+Igor Vinícius de Souza;Igor Vinicius;Sao Paulo
+Gabriel Baralhas;Baralhas;Atletico Goianiense
+Agustín Marchesín;NA;NA
+Luciano;Luciano Seg. Atacante;Sao Paulo
+Rafael Pires;NA;NA
+Matheusinho;Matheuzinho;Vitoria
+Murilo Cerqueira;Murilo;Palmeiras
+Gabriel;Gabriel Xavier;Bahia
+Gabriel;NA;NA
+Mateus Cocão;Mateus Carvalho;Vasco Da Gama
+Guilherme Tinga;Tinga;Fortaleza
+Éverson;NA;NA
+José López;Jose Manuel Lopez;Palmeiras
+Everaldo Stum;Everaldo;Bahia
+Thiago dos Santos;Thiago Santos;Fluminense
+Alix Vinicius;Alix;Atletico Goianiense
+Bruno Fabiano Alves;Bruno Alves;Cuiaba
