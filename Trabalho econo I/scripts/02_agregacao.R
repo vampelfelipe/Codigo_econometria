@@ -159,14 +159,13 @@ sem_par <- anti_join(estat_jogador, valor, by =
 #depois de selecionar manualmente os jogadores, queremos adicioná-los à base
   
 dicionario_nomes <- read_delim("dados/dicionario_nomes.csv", delim = ";") |>
-  rename(nome_estat = Jogador, nome_valor = valor) |>
+  rename(nome_estat = Jogador, nome_valor = valor, clube_valor = clube) |>
   filter(!is.na(nome_valor)) |>
-  mutate(across(everything(),
+  mutate(across(c(nome_estat, nome_valor),
                 ~ trimws(tolower(stri_trans_general(.x, "Latin-ASCII")))))
-          
-dicionario_nomes <- dicionario_nomes |>
-  left_join(sem_par |> select(nome, clube_valor),
-            by = c("nome_estat" = "nome"))
+
+anti_join(dicionario_nomes, valor,
+          by = c("nome_valor" = "nome", "clube_valor" = "Team"))
 
 dicionario_nomes <- dicionario_nomes |>
   semi_join(valor, by = c("nome_valor" = "nome",
@@ -185,3 +184,27 @@ base_final <- inner_join(estat_jogador, valor,
 
 dim(base_final)
 base_final |> count(nome, clube_valor) |> filter(n > 1)
+
+base_final <- base_final |>
+  mutate(
+    log_valor    = log(`Market Value`),
+    gols         = Gols,
+    assistencias = Assis.,
+    minutos      = Min.,
+    idade        = Age,
+    idade2       = Age^2,
+    estrangeiro  = as.integer(nacionalidade != "BRA"),
+    posicao = case_when(
+      Position %in% c("Center Back", "Left Back", "Right Back")
+        ~ "Defensor",
+      Position %in% c("Defensive Midfield", "Central Midfield",
+                      "Attacking Midfield") ~ "Meio-campista",
+      Position %in% c("Left Winger", "Right Winger", "Centre Forward",
+                      "Unknown") ~ "Atacante"
+      Position == "Unknown" & nome == "luciano seg. atacante" ~ "Atacante",
+    ),
+    posicao = factor(posicao,
+                     levels = c("Defensor", "Meio-campista", "Atacante"))
+  )
+
+saveRDS(base_final, "dados/base_final.rds")
