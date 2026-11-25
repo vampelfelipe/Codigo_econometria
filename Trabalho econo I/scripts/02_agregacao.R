@@ -12,6 +12,7 @@
 #   Todas as 25 colunas numéricas foram somadas
 #   Cmp% retirado antes da soma (é percentual)
 
+library(readr)
 library(dplyr)
 estatisticas <- readRDS("dados/estatisticas_brutas.rds")
 valor        <- readRDS("dados/valor_bruto.rds")
@@ -199,8 +200,7 @@ base_final <- base_final |>
         ~ "Defensor",
       Position %in% c("Defensive Midfield", "Central Midfield",
                       "Attacking Midfield") ~ "Meio-campista",
-      Position %in% c("Left Winger", "Right Winger", "Centre Forward",
-                      "Unknown") ~ "Atacante"
+      Position %in% c("Left Winger", "Right Winger", "Centre Forward") ~ "Atacante"
       Position == "Unknown" & nome == "luciano seg. atacante" ~ "Atacante",
     ),
     posicao = factor(posicao,
