@@ -1,21 +1,4 @@
-# =============================================================================
-# 02_agregacao.R
-# Constrói a base final (um jogador por clube) a partir das duas bases brutas.
-#
-# Entradas : dados/estatisticas_brutas.rds e dados/valor_bruto.rds (script 01)
-#            dados/dicionario_nomes.csv (correções manuais de nomes)
-# Saídas   : dados/base_final.rds e dados/base_final.csv
-# =============================================================================
-
-# Decisões sobre as variáveis
-#   Gols, assistências e minutos: soma das partidas do jogador no clube
-#   Unidade de observação: jogador + clube
-#   jogos: número de partidas do jogador em determinado clube
-#   Todas as 25 colunas numéricas das estatísticas são somadas;
-#   Cmp% é retirado antes da soma (é um percentual)
-#   Nacionalidade: vem da base de estatísticas (coluna Nação)
-#   Idade e posição: vêm da base de valor de mercado
-#   Variável estrangeiro: criada no fim do script (nacionalidade != "BRA")
+# 02_agregacao.R - Agregação por jogador/clube, filtros amostrais e junção das bases
 
 library(readr)
 library(dplyr)
@@ -24,6 +7,7 @@ library(stringi)
 estatisticas <- readRDS("dados/estatisticas_brutas.rds")
 valor        <- readRDS("dados/valor_bruto.rds")
 
+# 1. Agregação por jogador + clube (Cmp% excluído por ser percentual)
 estat_jogador <- estatisticas |>
   select(-`Cmp%`) |>
   group_by(Jogador, Time) |>
@@ -33,16 +17,12 @@ estat_jogador <- estatisticas |>
     nacionalidade = first(Nação),
     .groups = "drop"
   )
-dim(estat_jogador)   # esperado: 725 linhas x 29 colunas
+dim(estat_jogador)
 
-# -----------------------------------------------------------------------------
-# 2. Padronizar nomes dos clubes
-# -----------------------------------------------------------------------------
-
+# 2. Padronização dos nomes dos clubes
 sort(unique(estat_jogador$Time))
 sort(unique(valor$Team))
 
-# dicionário: nome do clube na base de estatísticas -> nome na base de valor
 dicionario_clubes <- tibble(
   clube_estat = c("Athletico Paranaense", "Atlético Goianiense",
                   "Atlético Mineiro",     "Bahia",
@@ -54,7 +34,6 @@ dicionario_clubes <- tibble(
                   "Juventude",            "Palmeiras",
                   "Red Bull Bragantino",  "São Paulo",
                   "Vasco da Gama",        "Vitória"),
-  
   clube_valor = c("Athletico",           "Atletico Goianiense",
                   "Atletico Mineiro",    "Bahia",
                   "Botafogo",            "Corinthians",
@@ -67,59 +46,38 @@ dicionario_clubes <- tibble(
                   "Vasco Da Gama",       "Vitoria")
 )
 
-# colar o dicionário na base
 estat_jogador <- estat_jogador |>
   left_join(dicionario_clubes, by = c("Time" = "clube_estat"))
 
-# todos os clubes precisam ter correspondência (esperado: 0 NA)
 stopifnot(sum(is.na(estat_jogador$clube_valor)) == 0)
 
-# -----------------------------------------------------------------------------
-# 3. Padronizar nomes dos jogadores (minúsculas, sem acento, sem espaços extras)
-# -----------------------------------------------------------------------------
-
+# 3. Padronização dos nomes dos jogadores
 estat_jogador <- estat_jogador |>
   mutate(nome = trimws(tolower(stri_trans_general(Jogador, "Latin-ASCII"))))
 
 valor <- valor |>
   mutate(nome = trimws(tolower(stri_trans_general(Player, "Latin-ASCII"))))
 
-# =============================================================================
-# CRITÉRIOS DE AMOSTRA (definidos pelo grupo em 19/11/2026)
-# =============================================================================
+# 4. Critérios de amostra
 
-# 1. Goleiros: excluídos (nas duas bases).
-#    Na base de estatísticas eles saem no pareamento, pois não existem na
-#    base de valor depois deste filtro.
-
+# Excluir goleiros (na base de estatísticas saem no inner_join)
 valor <- valor |>
   filter(Position != "Goalkeeper")
+nrow(valor)
 
-nrow(valor)   # esperado: 574
-
-# 2. Minutos: mínimo de 180 minutos jogados (equivalente a duas partidas
-#    completas). Robustez: reestimar com outro limite (script 04).
-
+# Mínimo de 180 minutos jogados (também remove o único NA de nacionalidade: Felipe Vieira)
 estat_jogador <- estat_jogador |>
   filter(Min. >= 180)
+nrow(estat_jogador)
 
-nrow(estat_jogador)   # esperado: 567
-
-# 3. Valor de mercado ausente (NA): jogador excluído.
-
+# Excluir jogadores sem valor de mercado
 valor <- valor |>
   filter(!is.na(`Market Value`))
+nrow(valor)
 
-nrow(valor)   # esperado: 564
-
-# 4. Nacionalidade ausente: o único caso (Felipe Vieira, Fluminense) foi
-#    excluído pelo filtro de 180 minutos; nenhuma correção manual necessária.
-
-# 5. Duplicatas na base de valor:
-#    - Adriel (Bahia): linha idêntica repetida -> removida com distinct().
-#    - Vitinho (Red Bull Bragantino): dois jogadores diferentes com o mesmo
-#      nome -> separados manualmente pela idade.
-
+# Duplicatas na base de valor:
+# Adriel (Bahia) já saiu no filtro de goleiros;
+# Vitinho (RB Bragantino) tinha linhas duplicadas e dois homônimos (separados pela idade)
 valor <- valor |> distinct()
 
 valor <- valor |>
@@ -132,25 +90,13 @@ valor <- valor |>
     "vitinho (outro)",
     nome
   ))
+nrow(valor)
 
-nrow(valor)   # esperado: 562
-
-# 6. Jogadores transferidos durante a temporada: usado o clube da base de
-#    valor; consideradas apenas as estatísticas nesse clube.
-#    (tratado automaticamente na junção por nome + clube: só casa a linha do
-#    clube registrado na base de valor)
-
-# 7. Nomes sem correspondência entre as bases: corrigidos manualmente os
-#    jogadores com mais de 2.000 minutos; os demais excluídos.
-
+# Jogadores sem par com mais de 2.000 minutos: corrigidos via dados/dicionario_nomes.csv
 sem_par <- anti_join(estat_jogador, valor,
                      by = c("nome" = "nome", "clube_valor" = "Team")) |>
   filter(`Min.` > 2000) |>
   arrange(desc(`Min.`))
-
-# As correções feitas à mão ficam em dados/dicionario_nomes.csv, com as
-# colunas Jogador (nome na base de estatísticas), valor (nome na base de
-# valor) e clube (clube na base de valor, igual à coluna Team).
 
 dicionario_nomes <- read_delim("dados/dicionario_nomes.csv", delim = ";",
                                show_col_types = FALSE) |>
@@ -159,9 +105,6 @@ dicionario_nomes <- read_delim("dados/dicionario_nomes.csv", delim = ";",
   mutate(across(c(nome_estat, nome_valor),
                 ~ trimws(tolower(stri_trans_general(.x, "Latin-ASCII")))))
 
-# Validação: toda correção precisa apontar para um jogador que exista na base
-# de valor (nome E clube). Se algo estiver errado, o script mostra o problema
-# e para aqui, em vez de descartar a correção em silêncio.
 erros_dicionario <- anti_join(dicionario_nomes, valor,
                               by = c("nome_valor" = "nome",
                                      "clube_valor" = "Team"))
@@ -174,23 +117,14 @@ estat_jogador <- estat_jogador |>
   mutate(nome = coalesce(nome_valor, nome)) |>
   select(-nome_valor)
 
-# -----------------------------------------------------------------------------
-# 4. Juntando tudo na base final
-# -----------------------------------------------------------------------------
-
+# 5. Junção final (transferidos mantêm apenas o clube registrado na base de valor)
 base_final <- inner_join(estat_jogador, valor,
                          by = c("nome" = "nome",
                                 "clube_valor" = "Team"))
-
-dim(base_final)   # esperado: 410 linhas x 36 colunas
-
-# cada jogador deve aparecer uma única vez por clube
+dim(base_final)
 stopifnot(anyDuplicated(base_final[, c("nome", "clube_valor")]) == 0)
 
-# -----------------------------------------------------------------------------
-# 5. Variáveis do modelo
-# -----------------------------------------------------------------------------
-
+# 6. Criação das variáveis do modelo
 base_final <- base_final |>
   mutate(
     log_valor    = log(`Market Value`),
@@ -199,22 +133,20 @@ base_final <- base_final |>
     minutos      = Min.,
     idade        = Age,
     idade2       = Age^2,
-    estrangeiro  = as.integer(nacionalidade != "BRA"),   # 1 = estrangeiro
+    estrangeiro  = as.integer(nacionalidade != "BRA"),
     posicao = case_when(
       Position %in% c("Center Back", "Left Back", "Right Back") ~ "Defensor",
       Position %in% c("Defensive Midfield", "Central Midfield",
                       "Attacking Midfield") ~ "Meio-campista",
       Position %in% c("Left Winger", "Right Winger",
                       "Centre Forward") ~ "Atacante",
-      # Posição "Unknown" na base de valor: classificado à mão como atacante,
-      # pois a posição está escrita no próprio nome ("Seg. Atacante").
+      # Luciano aparece como "Unknown", mas tem "Seg. Atacante" no campo Player
       Position == "Unknown" & nome == "luciano seg. atacante" ~ "Atacante"
     ),
     posicao = factor(posicao,
                      levels = c("Defensor", "Meio-campista", "Atacante"))
   )
 
-# nenhuma posição pode ficar sem classificação
 stopifnot(!anyNA(base_final$posicao))
 
 saveRDS(base_final, "dados/base_final.rds")

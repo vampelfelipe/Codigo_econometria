@@ -1,21 +1,11 @@
-# =============================================================================
-# 05_tabelas.R
-# Exporta as tabelas formatadas do trabalho para Word (.docx):
-#   1. tabelas/descritivas.docx  (estatísticas descritivas)
-#   2. tabelas/resultados.docx   (modelos MQO 1 e 2)
-#   3. tabelas/robustez.docx     (testes de robustez)
-#
-# Entradas : dados/base_final.rds, tabelas/descritivas.csv, tabelas/robustez.csv
-# Pacotes  : dplyr, tidyr, modelsummary, flextable
-# =============================================================================
+# 05_tabelas.R - Exportação das tabelas formatadas para Word (.docx)
 
 library(dplyr)
 library(tidyr)
 library(modelsummary)
 library(flextable)
 
-options(OutDec = ",")   # vírgula como separador decimal
-
+options(OutDec = ",")
 dir.create("tabelas", showWarnings = FALSE)
 
 base <- readRDS("dados/base_final.rds") |>
@@ -24,9 +14,7 @@ base <- readRDS("dados/base_final.rds") |>
     minutos_mil = minutos / 1000
   )
 
-# -----------------------------------------------------------------------------
-# 1. Tabela de estatísticas descritivas (a partir de tabelas/descritivas.csv)
-# -----------------------------------------------------------------------------
+# 1. Tabela de estatísticas descritivas
 tab_desc <- read.csv("tabelas/descritivas.csv", check.names = FALSE)
 
 ft_desc <- flextable(tab_desc) |>
@@ -42,13 +30,11 @@ ft_desc <- flextable(tab_desc) |>
 
 save_as_docx(ft_desc, path = "tabelas/descritivas.docx")
 
-# -----------------------------------------------------------------------------
-# 2. Tabela principal de resultados (Modelos 1 e 2)
-# -----------------------------------------------------------------------------
+# 2. Tabela principal de resultados (MQO)
 f1 <- log_valor ~ gols + assistencias + estrangeiro +
   idade + idade2 + minutos_mil + posicao
-m1 <- lm(f1, data = base)                                  # sem clube
-m2 <- lm(update(f1, . ~ . + clube_valor), data = base)     # com clube
+m1 <- lm(f1, data = base)
+m2 <- lm(update(f1, . ~ . + clube_valor), data = base)
 
 nomes <- c(
   "gols"                 = "Gols",
@@ -92,9 +78,7 @@ tabela <- modelsummary(
 
 save_as_docx(tabela, path = "tabelas/resultados.docx")
 
-# -----------------------------------------------------------------------------
-# 3. Tabela de testes de robustez (a partir de tabelas/robustez.csv)
-# -----------------------------------------------------------------------------
+# 3. Tabela de testes de robustez
 tab_rob <- read.csv("tabelas/robustez.csv") |>
   mutate(
     estrelas = case_when(

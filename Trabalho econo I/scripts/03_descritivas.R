@@ -1,3 +1,5 @@
+# 03_descritivas.R - Estatísticas descritivas e gráficos
+
 library(dplyr)
 library(tidyr)
 library(ggplot2)
