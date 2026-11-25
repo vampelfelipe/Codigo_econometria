@@ -1,0 +1,37 @@
+"teste","variavel","pct","p","n"
+"Modelo 1 (sem clube)","gols",9.4,0,410
+"Modelo 1 (sem clube)","assistencias",8.5,0.011,410
+"Modelo 1 (sem clube)","estrangeiro",47.3,0,410
+"Modelo 1 (sem clube)","minutos",-1.1,0.886,410
+"Modelo 2 (principal)","gols",5.6,0.001,410
+"Modelo 2 (principal)","assistencias",5.4,0.044,410
+"Modelo 2 (principal)","estrangeiro",29.5,0.001,410
+"Modelo 2 (principal)","minutos",14.9,0.016,410
+"Minutos >= 450","gols",5.7,0.001,360
+"Minutos >= 450","assistencias",5.2,0.056,360
+"Minutos >= 450","estrangeiro",23,0.013,360
+"Minutos >= 450","minutos",16.9,0.029,360
+"Minutos >= 900","gols",7.8,0,285
+"Minutos >= 900","assistencias",5.3,0.053,285
+"Minutos >= 900","estrangeiro",26.6,0.014,285
+"Minutos >= 900","minutos",5.1,0.556,285
+"Sem os 3 maiores valores","gols",5.2,0.003,407
+"Sem os 3 maiores valores","assistencias",4.5,0.09,407
+"Sem os 3 maiores valores","estrangeiro",28.8,0.001,407
+"Sem os 3 maiores valores","minutos",15.9,0.011,407
+"Erros agrupados por clube","gols",5.6,0,410
+"Erros agrupados por clube","assistencias",5.4,0.02,410
+"Erros agrupados por clube","estrangeiro",29.5,0.002,410
+"Erros agrupados por clube","minutos",14.9,0.046,410
+"Só defensores (sem clube)","gols",2.5,0.714,160
+"Só defensores (sem clube)","assistencias",-2.6,0.693,160
+"Só defensores (sem clube)","estrangeiro",52.2,0.011,160
+"Só defensores (sem clube)","minutos",15.2,0.191,160
+"Só meio-campistas (sem clube)","gols",10.4,0.03,130
+"Só meio-campistas (sem clube)","assistencias",11.4,0.04,130
+"Só meio-campistas (sem clube)","estrangeiro",82.2,0.001,130
+"Só meio-campistas (sem clube)","minutos",-9.5,0.466,130
+"Só atacantes (sem clube)","gols",10,0.011,120
+"Só atacantes (sem clube)","assistencias",11.5,0.048,120
+"Só atacantes (sem clube)","estrangeiro",22.8,0.223,120
+"Só atacantes (sem clube)","minutos",-13,0.49,120
